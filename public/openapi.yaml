@@ -1,0 +1,226 @@
+openapi: 3.1.0
+info:
+  title: Документация для API
+  description: Описание API
+  version: 1.0.0
+servers: 
+  - url: http://127.0.0.1:8000/
+    description: Локальный сервер
+paths:
+  /api/v1/notebook:
+    get:
+      summary: Получение всех записных книжек
+      description: Описание получения всех записных книжек
+      tags:
+        - Notebook
+      responses:
+        '200':
+          description: Ответ при котором вы получите все записные книжки
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Успешное получение всех записных книжек
+    post:
+      summary: Создание записной книжки
+      description: Описание создания записной книжки
+      tags:
+        - Notebook
+      parameters:
+        - $ref: '#/components/parameters/ContentTypeHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotebookRequest'
+      responses:
+        '201':
+          description: Ответ при котором записная книжка будет создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotebookResponse'
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Ошибка валидации
+
+  /api/v1/notebook/{id}:
+    get:
+      summary: Получение конкретной записной книжки по id
+      description: Описание получения конкретной записной книжки по id
+      parameters:
+        - $ref: '#/components/parameters/ContentTypeHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Идентификатор записной книжки
+      tags:
+        - Notebook
+      responses:
+        '200':
+          description: Ответ при котором вы получите конкретную записную книжку
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotebookResponse'
+        '404':
+          description: Ошибка которая возникает в том случаи если id который вы указали нет в БД
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Записная книжка с данным идентификатором не найдена
+    put:
+      summary: Обновление записной книжки
+      description: Описание обновления записной книжки
+      tags:
+        - Notebook
+      parameters:
+        - $ref: '#/components/parameters/ContentTypeHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Идентификатор записной книжки
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotebookRequest'
+      responses:
+        '200':
+          description: Ответ при котором записная книжка будет обновлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotebookResponse'
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Ошибка валидации
+        '404':
+          description: Ошибка которая возникает в том случаи если id который вы указали нет в БД
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Записная книжка с данным идентификатором не найдена        
+    delete:
+      summary: Удаление записной книжки
+      description: Описание удаления записной книжки
+      tags:
+        - Notebook
+      parameters:
+        - $ref: '#/components/parameters/ContentTypeHeader'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Идентификатор записной книжки
+      responses:
+        '204':
+          description: Записная книжка успешно удалена
+        '404':
+          description: Ошибка которая возникает в том случаи если id который вы указали нет в БД
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Записная книжка с данным идентификатором не найдена     
+components:
+  schemas:
+    NotebookRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+          example: John Doe
+        company:
+          type: string
+          example: Example Inc.
+        phone:
+          type: string
+          example: +1234567890
+        email:
+          type: string
+          format: email
+          example: email@example.com
+        birthdate:
+          type: string
+          format: date
+          example: 2000-01-01
+        photo:
+          type: string
+          format: binary
+          description: Ссылка на фото записной книжки
+      required:
+        - full_name
+        - company
+        - phone
+        - email
+    NotebookResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        full_name:
+          type: string
+          example: John Doe
+        company:
+          type: string
+          example: Example Inc.
+        phone:
+          type: string
+          example: +1234567890
+        email:
+          type: string
+          format: email
+          example: email@example.com
+        birthdate:
+          type: string
+          format: date
+          example: 2000-01-01
+        photo:
+          type: string
+          format: binary
+          description: Ссылка на фото записной книжки
+  parameters:
+    ContentTypeHeader:
+      name: Content-Type
+      description: Всегда должен быть application/json для стабильной работы
+      in: header
+      required: true
+      schema:
+        type: string
